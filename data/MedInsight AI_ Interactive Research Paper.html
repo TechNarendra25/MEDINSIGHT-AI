@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MedInsight AI: A Conversational LLM Interface for Exploring Indian Medicine Data</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F7FA;--ink:#14202E;--mut:#5A6878;--rule:#D5DCE6;--blue:#1F4FD8;--teal:#0E8F86;--amb:#C77D0A;--card:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1720;--ink:#E4EAF2;--mut:#9AA8B8;--rule:#27364A;--blue:#6E95FF;--teal:#3CC4B9;--amb:#E7A63C;--card:#16212E}}
+:root[data-theme="dark"]{--bg:#0F1720;--ink:#E4EAF2;--mut:#9AA8B8;--rule:#27364A;--blue:#6E95FF;--teal:#3CC4B9;--amb:#E7A63C;--card:#16212E}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 "Source Serif 4",Georgia,serif}
+.wrap{max-width:1100px;margin:auto;padding:24px 20px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+nav{position:sticky;top:20px;align-self:start;font:14px/1.4 "IBM Plex Sans",system-ui,sans-serif}
+nav a{display:block;padding:6px 10px;color:var(--mut);text-decoration:none;border-left:2px solid var(--rule)}
+nav a.on{color:var(--blue);border-color:var(--blue);font-weight:600}
+nav button{margin-top:14px;font:inherit;padding:6px 10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:4px;cursor:pointer;width:100%}
+main{max-width:720px}
+h1{font:600 34px/1.2 "IBM Plex Sans",sans-serif;margin:0 0 10px}
+h2{font:600 22px/1.3 "IBM Plex Sans",sans-serif;margin:44px 0 8px;padding-top:18px;border-top:1px solid var(--rule)}
+h3{font:600 17px "IBM Plex Sans",sans-serif;margin:22px 0 4px}
+.by{font:15px "IBM Plex Sans",sans-serif;color:var(--mut);margin:0 0 22px}
+.abs{background:var(--card);border-left:4px solid var(--blue);padding:14px 18px;font-size:16px}
+.kw{font:14px "IBM Plex Sans",sans-serif;color:var(--mut)}
+p{margin:0 0 14px}
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:16px;margin:20px 0;font-family:"IBM Plex Sans",sans-serif}
+.fig .cap{font-size:13.5px;color:var(--mut);margin-top:10px;line-height:1.5}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.seg button,.tabs button{font:14px "IBM Plex Sans",sans-serif;padding:6px 12px;border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;cursor:pointer}
+.seg button[aria-pressed=true],.tabs button[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+button:focus-visible,summary:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--amb);outline-offset:2px}
+.row{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:13.5px;margin:5px 0;cursor:pointer}
+.row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:16px;background:var(--rule);border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue);transition:width .35s}
+.row:hover .bar i,.row.sel .bar i{background:var(--teal)}
+.row b{text-align:right;font-weight:600}
+#read{font-size:14px;margin-top:10px;min-height:22px;color:var(--teal)}
+table{width:100%;border-collapse:collapse;font:14px "IBM Plex Sans",sans-serif;margin:10px 0}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule)}th{color:var(--mut);font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pane{display:none;font-size:15.5px}.pane.on{display:block}
+input[type=text]{width:100%;font:16px "IBM Plex Sans",sans-serif;padding:9px 11px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)}
+#route{margin-top:10px;font-size:14.5px;line-height:1.55}
+.tag{display:inline-block;font:600 13px "IBM Plex Sans",sans-serif;padding:2px 8px;border-radius:3px;background:var(--blue);color:#fff}.warn{background:var(--amb);color:#14202E}
+code{font:14px ui-monospace,Menlo,monospace;background:var(--rule);padding:1px 5px;border-radius:3px}
+details{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin:8px 0;font-size:16px}
+summary{cursor:pointer;font:600 15.5px "IBM Plex Sans",sans-serif}
+ol.ref{font-size:14.5px;padding-left:20px}ol.ref li{margin-bottom:6px}
+sup a{color:var(--blue);text-decoration:none;font:600 12px "IBM Plex Sans"}
+.eq{text-align:center;font:italic 17px "Source Serif 4",serif;margin:12px 0}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}nav{display:none}.row{grid-template-columns:110px 1fr 62px}h1{font-size:27px}}
+@media print{nav,.seg,.tabs,input,#route{display:none}.wrap{display:block}.pane{display:block!important}details{break-inside:avoid}details:not([open])>*{display:block}body{font-size:12pt;background:#fff;color:#000}}
+</style></head><body>
+<div class="wrap">
+<nav id="toc" aria-label="Sections"></nav>
+<main>
+<h1>MedInsight AI: A Conversational LLM Interface for Exploring Large-Scale Indian Medicine Data</h1>
+<p class="by">Narendra Somnath Vispute &middot; Data Analyst and Data Scientist, Mumbai, India &middot; October 2026</p>
+<div class="abs" id="abstract"><strong>Abstract.</strong> Indian pharmaceutical data is large, wide and uneven, which makes it hard for non-programmers to query. This paper presents MedInsight AI, a Streamlit application that lets users ask plain-English questions about a medicine table and receive a language-model answer together with an automatically selected chart. The system couples pandas profiling, a compact dataset summary, Groq-hosted LLaMA 3.3 70B, and a keyword-routed Plotly chart generator. We profile the bundled dataset of 248,218 medicine records and 58 columns, find that 69.5% of its cells are empty because of a wide side-effect layout, and analyse how the design behaves on it. We identify three limits: the model sees only a truncated summary, the chart router is disconnected from the model, and price-oriented features described in the project README cannot be supported by the bundled data. We propose a retrieval-and-execution architecture to address them.<p class="kw" style="margin:10px 0 0"><em>Keywords:</em> conversational analytics, large language models, pharmaceutical data, Streamlit, data visualisation, text-to-analysis</p></div>
+
+<h2 id="intro">1. Introduction</h2>
+<p>India has one of the largest retail medicine markets in the world, and product information is spread across thousands of brand names that share a small number of active ingredients. Pharmacists, students and health-data analysts often need simple answers: which therapeutic classes dominate, which side effects are most commonly listed, which substitutes exist for a brand. Answering them today means writing SQL or pandas code, which excludes most of the people who ask.</p>
+<p>Large language models (LLMs) offer a natural interface to tabular data, because a person can phrase a question in English and read the answer in English.<sup><a href="#r1">[1]</a></sup> MedInsight AI applies this idea to medicine records. A user uploads a CSV file, sees an instant overview, and chats with the data while the application draws a chart next to each answer.</p>
+<p><strong>Contributions.</strong> (i) A complete, small and deployable architecture for conversational medicine analytics. (ii) A quantitative profile of the dataset the project ships with, including its structural sparsity. (iii) A critical evaluation of where the current design is reliable and where it is not. (iv) A concrete redesign that grounds answers in executed queries rather than a truncated text summary.</p>
+
+<h2 id="related">2. Background and Related Work</h2>
+<p><strong>LLMs for data questions.</strong> General-purpose LLMs such as GPT-3<sup><a href="#r1">[1]</a></sup> and the open LLaMA family<sup><a href="#r2">[2]</a></sup> can follow instructions and summarise tables that fit in a prompt. Their weakness is that arithmetic over a table too large for the context window is guessed, not computed, and fluent but unsupported output is a documented failure mode.<sup><a href="#r3">[3]</a></sup></p>
+<p><strong>Grounding.</strong> Retrieval-augmented generation supplies the model with evidence fetched at query time instead of relying on its parameters.<sup><a href="#r4">[4]</a></sup> For tabular data the analogue is to let the model write a query, execute it, and narrate the result. MedInsight AI currently sits one step earlier in this progression: it supplies a summary rather than retrieved rows.</p>
+<p><strong>Classical prediction.</strong> Random forests<sup><a href="#r5">[5]</a></sup> implemented in scikit-learn<sup><a href="#r6">[6]</a></sup> are a common baseline for tabular regression. The project README names a Random Forest price model as a planned module; Section 7 explains why this cannot be evaluated from the submitted files.</p>
+
+<h2 id="data">3. Dataset</h2>
+<p>The bundled file <code>medicine_dataset.csv</code> (about 89 MB) holds <strong>248,218</strong> records and <strong>58</strong> columns. The layout is: an integer <code>id</code>; the brand <code>name</code> (222,825 distinct values); five <code>substitute</code> slots; forty-two <code>sideEffect</code> slots; five <code>use</code> slots; and four categorical fields, <em>Chemical Class</em>, <em>Habit Forming</em>, <em>Therapeutic Class</em> and <em>Action Class</em>. The only numeric column is <code>id</code>.</p>
+<p>Lists are stored in a <em>wide</em> layout, one slot per list item. Because most medicines list only a handful of side effects, the table is structurally sparse: <strong>10,002,467 of 14,396,644 cells (69.5%)</strong> are empty. Use the figure below to explore the distribution. Click any bar to read its share of the whole table.</p>
+<div class="fig">
+<div class="seg" role="group" aria-label="Choose view" id="seg"></div>
+<div id="chart"></div><div id="read" aria-live="polite"></div>
+<div class="cap" id="fcap"></div></div>
+<p>Three properties matter for analytics. First, the Therapeutic Class field is complete and has 22 values, so it is the most reliable grouping key. Second, Chemical Class and Action Class are empty for about 44% of records, with 872 and 431 distinct values respectively. Third, medicines list on average 6.49 side effects (median 6, maximum 42), 4.65 substitutes and 1.46 uses. Only 2.4% of records (6,003) are flagged habit-forming.</p>
+
+<h2 id="arch">4. System Architecture</h2>
+<p>The application is about 300 lines of Python in four modules: <code>app.py</code> (interface), <code>utils.py</code> (loading and summarising), <code>gemini_engine.py</code> (LLM calls; the file name is historical, the client is Groq) and <code>chart_generator.py</code> (visualisation). Select a stage to see what it does.</p>
+<div class="fig"><div class="tabs" role="tablist" id="tabs"></div><div id="panes"></div>
+<div class="cap">Figure 2. Request path for one question. The model and the chart generator both receive the question, but not each other's output.</div></div>
+
+<h2 id="method">5. Implementation</h2>
+<h3>5.1 Ingestion and summary</h3>
+<p>Uploaded CSVs are read with <code>low_memory=False</code> and text columns are whitespace-stripped. To control cost, <code>get_dataframe_summary</code> builds a description of shape, column names, a five-row sample and <code>describe()</code> output, then truncates it to 3,000 characters. A second sample of five rows is sent alongside it.</p>
+<h3>5.2 Language model</h3>
+<p>Each question is wrapped in a prompt that casts the model as an expert analyst of Indian pharmaceutical data, adds the summary and sample, and asks for exact figures and a suggested chart type. The call uses <code>llama-3.3-70b-versatile</code> with <code>max_tokens=1000</code> and <code>temperature=0.7</code>. A separate call generates six suggested questions when a dataset loads.</p>
+<h3>5.3 Chart routing</h3>
+<p>The question is lower-cased and matched against keyword lists in a fixed order; the first matching branch wins. Column names are then resolved by substring search, with a fallback to the first text or numeric column. The routing is reproduced in Figure 3.</p>
+<div class="fig"><label for="q"><strong>Figure 3.</strong> Type a question to see which chart the router selects and which column it would use on this dataset.</label>
+<input type="text" id="q" value="Show the distribution of medicines by category" autocomplete="off"><div id="route" aria-live="polite"></div>
+<div class="cap">Replicates the branch order and substring logic of <code>generate_chart</code>; column resolution was checked against the real column list.</div></div>
+<h3>5.4 Interface</h3>
+<p>The dark Streamlit interface provides dataset statistics, tabs for preview, statistics, missing values and column information, a chat panel with persisted history, per-session query counter, and text export of the conversation.</p>
+
+<h2 id="results">6. Analysis of Behaviour</h2>
+<p>We did not run a user study or a benchmark against ground truth. The results below come from static profiling of the data and from reading the code, and should be read as findings about the design rather than measured accuracy.</p>
+<table><tr><th>Question type</th><th>Model has the evidence?</th><th>Chart router outcome</th></tr>
+<tr><td>Top side effects overall</td><td>Partly: only a 5-row sample is visible</td><td>Word &ldquo;top&rdquo; triggers a bar of medicine-name counts</td></tr>
+<tr><td>Medicines per therapeutic class</td><td>No: needs a full count</td><td>Uses Chemical Class, not Therapeutic Class</td></tr>
+<tr><td>Substitutes for a named brand</td><td>Only if the brand is in the sample</td><td>Word &ldquo;brand&rdquo; triggers a bar of medicine-name counts</td></tr>
+<tr><td>Most expensive medicine</td><td>No price field exists</td><td>Histogram of <code>id</code></td></tr></table>
+<h3>Observed strengths</h3>
+<p>Setup is minimal, the interface is approachable, and the deployment is live. The suggestion step helps users who do not know what to ask, and the session export supports reporting.</p>
+<h3>Observed weaknesses</h3>
+<details open><summary>The model answers from a truncated summary</summary><p>The 3,000-character summary is dominated by column names and sample rows. With 248,218 records, any aggregate the model reports is an estimate from five rows unless the answer is general pharmacology knowledge. The prompt asks for &ldquo;exact figures&rdquo;, which invites confident fabrication.<sup><a href="#r3">[3]</a></sup></p></details>
+<details><summary>The chart is not tied to the answer</summary><p>Chart selection uses the question text only, so the plot can disagree with the prose. Because routing runs by substring, &ldquo;stop&rdquo; contains &ldquo;top&rdquo; and triggers the company bar chart.</p></details>
+<details><summary>Keyword fallbacks mislead on this dataset</summary><p>The router assumes price, manufacturer and category columns. None exist here, so it plots whichever column is first. The first column containing &ldquo;class&rdquo; is Chemical Class (44.5% missing), shadowing the complete Therapeutic Class.</p></details>
+<details><summary>Sparse wide columns are invisible to the model</summary><p>Forty-two side-effect columns are 84.6% empty. A long-format (one row per medicine&ndash;side-effect pair) table would make counts trivial.</p></details>
+
+<h2 id="limits">7. Limitations and Threats to Validity</h2>
+<p><strong>Data and claims.</strong> The README reports a price model (Random Forest, 40,000+ samples, 85%+ accuracy) and 1,000+ companies. The submitted archive contains no <code>ml_model.py</code>, no price or manufacturer column, and no training log, so these figures could not be reproduced and are not claimed here. Readers should treat them as unverified until the code, split and metric definition are published.</p>
+<p><strong>Scope.</strong> The system reports what a dataset lists; it is not clinical advice, and side-effect presence says nothing about frequency or severity. The data source and licence are not documented in the repository, which limits reuse. <strong>Security.</strong> Hosting an application with a third-party API key requires secrets to be kept out of version control and rotated if exposed.</p>
+
+<h2 id="future">8. Proposed Improvements</h2>
+<p>The central change is to make the model <em>compute</em> instead of <em>recall</em>. Let the model emit a structured pandas query (or a constrained JSON plan); execute it in a sandbox; pass the resulting table back for narration; and draw the chart from that same table. This ties prose, number and figure to one source, and lets the system say &ldquo;this column does not exist&rdquo;.</p>
+<p>Secondary work: reshape list columns to long format; add a semantic schema map (for example, &ldquo;category&rdquo; means Therapeutic Class); lower temperature to 0.2 for analytic answers; add a small gold set of 50 questions with checked answers to measure accuracy; and add medicine search by retrieval<sup><a href="#r4">[4]</a></sup> for substitute lookup. A price model should only return after a price field with a documented source exists, and with a held-out evaluation.</p>
+
+<h2 id="concl">9. Conclusion</h2>
+<p>MedInsight AI shows that a few hundred lines of Python can turn a 248,218-row medicine table into a conversational tool with charts. The same profiling exposes the gap between a convincing interface and a reliable analyst: answers rest on a five-row sample, the chart router is decoupled from the model, and its keyword assumptions do not fit the data. Executing model-written queries against the full table, and publishing an evaluation set, would turn the prototype into something whose answers can be checked.</p>
+
+<h2 id="refs">References</h2>
+<ol class="ref">
+<li id="r1">Brown, T. et al. (2020). Language models are few-shot learners. <em>NeurIPS 33</em>.</li>
+<li id="r2">Touvron, H. et al. (2023). LLaMA: Open and efficient foundation language models. arXiv:2302.13971.</li>
+<li id="r3">Ji, Z. et al. (2023). Survey of hallucination in natural language generation. <em>ACM Computing Surveys</em>, 55(12).</li>
+<li id="r4">Lewis, P. et al. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. <em>NeurIPS 33</em>.</li>
+<li id="r5">Breiman, L. (2001). Random forests. <em>Machine Learning</em>, 45(1), 5&ndash;32.</li>
+<li id="r6">Pedregosa, F. et al. (2011). Scikit-learn: Machine learning in Python. <em>JMLR</em>, 12, 2825&ndash;2830.</li>
+</ol>
+</main></div>
+<script>
+const $=s=>document.querySelector(s),T=248218;
+const D={
+tc:{t:"Medicines per therapeutic class (top 10 of 22)",c:"Figure 1a. Therapeutic Class is complete (0% missing).",d:[["Anti infectives",57503],["Gastro intestinal",33630],["Pain analgesics",32267],["Neuro CNS",23319],["Respiratory",23052],["Cardiac",18381],["Anti diabetic",11679],["Ophthal",10573],["Derma",9883],["Hormones",5629]],u:"records",p:1},
+se:{t:"Most listed side effects (first ten side-effect slots)",c:"Figure 1b. Counts of records listing each effect in slots 0 to 9.",d:[["Nausea",156196],["Diarrhea",138639],["Vomiting",99443],["Headache",97913],["Dizziness",72175],["Stomach pain",50202],["Rash",33284],["Dryness in mouth",33224],["Sleepiness",32492],["Flatulence",30925]],u:"records",p:1},
+fr:{t:"Share of records filled, by side-effect slot",c:"Figure 1c. Filled share falls sharply after slot 4, producing the 69.5% empty cells overall.",d:[[0,100],[1,96.1],[2,92.5],[3,83.7],[4,65.9],[5,52.9],[6,37],[7,27.3],[8,19.5],[9,15.2],[10,11],[11,8.2]].map(x=>["sideEffect"+x[0],x[1]]),u:"%",p:0}};
+let cur="tc";
+function draw(){const v=D[cur],m=Math.max(...v.d.map(x=>x[1]));
+$("#chart").innerHTML="<p style='font:600 15px IBM Plex Sans;margin:0 0 8px'>"+v.t+"</p>"+v.d.map((x,i)=>`<div class="row" data-i="${i}" tabindex="0" role="button"><span>${x[0]}</span><div class="bar"><i style="width:${x[1]/m*100}%"></i></div><b>${v.p?x[1].toLocaleString():x[1]+"%"}</b></div>`).join("");
+$("#fcap").textContent=v.c;$("#read").textContent="Select a bar for detail.";
+document.querySelectorAll(".row").forEach(r=>{const f=()=>{document.querySelectorAll(".row").forEach(z=>z.classList.remove("sel"));r.classList.add("sel");const x=v.d[r.dataset.i];$("#read").textContent=v.p?`${x[0]}: ${x[1].toLocaleString()} of ${T.toLocaleString()} records (${(x[1]/T*100).toFixed(1)}%).`:`${x[0]} is filled for ${x[1]}% of records, so ${(100-x[1]).toFixed(1)}% of its cells are empty.`};r.onclick=f;r.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();f()}}})}
+const L={tc:"Therapeutic class",se:"Side effects",fr:"Field completeness"};
+$("#seg").innerHTML=Object.keys(L).map(k=>`<button aria-pressed="${k==cur}" data-k="${k}">${L[k]}</button>`).join("");
+$("#seg").onclick=e=>{const k=e.target.dataset.k;if(!k)return;cur=k;document.querySelectorAll("#seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k==k));draw()};draw();
+const S=[["Ingest","The CSV is loaded with pandas, cleaned, and stored in session state. Statistics cards show rows, columns, missing cells and column types."],["Summarise","A compact text summary (shape, column names, five sample rows, describe output) is cut to 3,000 characters to save tokens."],["Ask the model","The question, summary and sample go to Groq-hosted LLaMA 3.3 70B. The reply is shown as chat text and saved in history."],["Draw a chart","The question is matched against keyword lists to pick a Plotly chart type; the chart appears under the answer."]];
+$("#tabs").innerHTML=S.map((s,i)=>`<button role="tab" aria-selected="${i==0}" data-i="${i}">${i+1}. ${s[0]}</button>`).join("");
+$("#panes").innerHTML=S.map((s,i)=>`<div class="pane ${i?"":"on"}" id="p${i}">${s[1]}</div>`).join("");
+$("#tabs").onclick=e=>{const i=e.target.dataset.i;if(i==null)return;document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.i==i));document.querySelectorAll(".pane").forEach((p,j)=>p.classList.toggle("on",j==i))};
+const R=[[["company","manufacturer","brand","top"],"Bar chart","horizontal bar","text column: name (no company column, so first text column)"],[["category","type","class","distribution","breakdown"],"Pie chart","pie of top 8","Chemical Class (first column containing 'class'; 44.5% missing)"],[["price","cost","expensive","cheap","affordable"],"Histogram","50-bin histogram","numeric column: id (no price column)"],[["compare","vs","versus","difference","average"],"Box plot","box plot","id grouped by Chemical Class (no price column)"],[["correlation","relationship","scatter","trend"],"Scatter","scatter","fails: only one numeric column, so no chart is drawn"]];
+function route(){const q=$("#q").value.toLowerCase();let h=null;for(const r of R){const w=r[0].find(k=>q.includes(k));if(w){h=[r,w];break}}
+$("#route").innerHTML=h?`<span class="tag ${h[0][1]=="Scatter"?"warn":""}">${h[0][1]}</span> Matched keyword <code>${h[1]}</code>. Draws a ${h[0][2]} using ${h[0][3]}.`:`<span class="tag warn">Default</span> No keyword matched. Draws top 10 medicines by <code>id</code>, because no price column exists.`}
+$("#q").oninput=route;route();
+const secs=[["abstract","Abstract"],["intro","Introduction"],["related","Related work"],["data","Dataset"],["arch","Architecture"],["method","Implementation"],["results","Analysis"],["limits","Limitations"],["future","Improvements"],["concl","Conclusion"],["refs","References"]];
+$("#toc").innerHTML=secs.map(s=>`<a href="#${s[0]}">${s[1]}</a>`).join("")+`<button onclick="print()">Save as PDF</button><button onclick="const r=document.documentElement;r.dataset.theme=r.dataset.theme=='dark'?'light':'dark'">Toggle theme</button>`;
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){document.querySelectorAll("#toc a").forEach(a=>a.classList.toggle("on",a.hash=="#"+e.target.id))}}),{rootMargin:"-10% 0px -80% 0px"});
+secs.forEach(s=>{const el=document.getElementById(s[0]);el&&io.observe(el)});
+</script></body></html>
